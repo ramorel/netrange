@@ -1,8 +1,9 @@
 ---
-title: "Network Range"
+title: "R function for network range"
 author: "Richard Paquin Morel"
-date: "8/30/2017"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -166,7 +167,9 @@ netrange <- function(net, attr, directed = TRUE){
 
 ## An example: Who's got the best gossip?
 
-To illustrate this, I will use an example dataset from Goodreau (CITE): A mock social network in a fake high school (Magnolia High). Now, normally you might think that range is most useful for organizations involved in complex work that draws on multiple knowledge domains (as is the case in Reagans & McEvily). But it may be relevant to the social lives of teenagers as well. Hear me out on this one. If a junior in Magnolia High has friends in each of the grades and several cliques, she potentially has strong access to that most valuable of high school resources: gossip. Knowing who is doing what in each grade and each clique arms her with powerful information to control the social life of the high school!
+To illustrate this, I will use an example dataset from Hancock et al.'s (2003): A mock social network in a fake high school (Magnolia High). This is a simulated network based on exponential random graph model fits of actual high school networks from the AddHealth data set (Resnick et al, 1997). 
+
+Now, normally you might think that range is most useful for organizations involved in complex work that draws on multiple knowledge domains (as is the case in Reagans & McEvily). But it may be relevant to the social lives of teenagers as well. Hear me out on this one. If a junior in Magnolia High has friends in each of the grades and several cliques, she potentially has strong access to that most valuable of high school resources: gossip. Knowing who is doing what in each grade and each clique arms her with powerful information to control the social life of the high school!
 
 Let's take a look at Magnolia High.
 
@@ -177,6 +180,9 @@ summary(faux.desert.high, print.adj = F, mixingmatrices = T)
 ```
 
 Let's plot it, coloring the nodes by grade level.
+```{r, echo=F, include=F}
+l <- plot(faux.desert.high)
+```
 
 ```{r desert high plot, echo=FALSE}
 cols <- data.frame(grade = 7:12, 
@@ -189,7 +195,6 @@ cols <- data.frame(grade = 7:12,
                    stringsAsFactors = F
 )
 faux.desert.high %v% "colors" <- cols[match(faux.desert.high %v% "grade", cols$grade), "color"]
-l <- plot(faux.desert.high)
 plot(faux.desert.high, 
      vertex.col = faux.desert.high %v% "colors",
      edge.col = "gray40",
