@@ -2,6 +2,7 @@
 ## Arguments:
 ##  net = adjacency matrix, igraph graph, or network object
 ##  attr = Vector of attributes associated with each node in net
+##  directed = boolean indicated if the network is directed or not
 
 netrange <- function(net, attr, directed = TRUE){
   require(reshape2)
