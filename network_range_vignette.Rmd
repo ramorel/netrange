@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Network range is a measure that I really like. It captures the diversity of an actor's ego network in a nuanced way. But none of the major R network analysis packages includes a node-level measure of range. While range is sometimes used in empirical network studies, it is not nearly as popular as other measures, like centrality or structural holes. Part of the issue is that there are many ways to measure network range. When I refer to network range, I mean Burt's (1983) composite measure of network diversity. The most famous use of this measure is Reagans and McEvily's (2003) study on knowledge transfer and innovation. 
 
-The purpose of this vignette is to describe the measure and illustrate it use.
+The purpose of this vignette is to describe the measure and illustrate its use.
 
 ## Network Range
 
