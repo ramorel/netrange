@@ -2,6 +2,13 @@ R function for network range
 ================
 Richard Paquin Morel
 
+Some preliminaries
+------------------
+
+Network range is a measure that I really like. It captures the diversity of an actor's ego network in a nauanced way. But none of the major R network analysis packages includes a node-level measure of range. While range is sometimes used in empirical network studies, it is not nearly as popular as other measures, like centrality or structural holes. Part of the issue is that there are many ways to measure network range. When I refer to network range, I mean Burt's (1983) composite measure of network diversity. The most famous use of this measure is Reagans and McEvily's (2003) study on knowledge transfer and innovation.
+
+The purpose of this vignette is to describe the measure and illustrate it use.
+
 Network Range
 -------------
 
@@ -220,6 +227,18 @@ summary(faux.desert.high, print.adj = F, mixingmatrices = T)
 
 Let's plot it, coloring the nodes by grade level.
 
+``` r
+library(GGally)
+library(ggplot2)
+ggnet2(faux.desert.high, color = "grade",
+       size = 4, palette = "Set1", arrow.gap = 0.02,
+       arrow.size = 5, edge.alpha = 0.5,
+       mode = l,
+       edge.color = c("color", "grey50"),
+       color.legend = "Grade") +
+  theme(legend.position = "bottom")
+```
+
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/desert%20high%20plot-1.png)
 
 We some some clustering by grade, particularly in grade 7. Not surprising that the smallest fish in the pond stick together. Grade 12 seems much more spread out. In addition to the formal grouping of grades, we can also find informal cliques within the school using a community detection algorithm. There are ample options to choose from in the network analysis world. Personally, I like the fast-greedy method used by Clauset et al. (2004), but it is only defined for undirected networks. No worries; we will fudge here and treat the network as undirected when finding subgroups. It assigns each node in the network to a distinct subgroup based on the density of ties in that subgroup. Unfortunately, it is not available in the `sna` package, so we have to turn to `igraph`. That means we need to convert our network from a `network` object to an `igraph` object. No worries there thanks to the Michal Bojanowski's `intergraph` package! It even transfers attribute information!
@@ -305,10 +324,53 @@ range_grade <- netrange(faux.desert.high,
     ## Loading required package: reshape2
 
 ``` r
+range_grade
+```
+
+    ##   [1] 0.68464965        NaN 0.52467310 0.72987013 0.40000000 0.40000000
+    ##   [7] 0.38283685 0.77653277        NaN 0.51948052        NaN 0.39015466
+    ##  [13] 0.84586373 0.27906977 0.09677419        NaN 0.54545455        NaN
+    ##  [19] 0.32416063 0.40000000 0.63441864        NaN        NaN 0.09677419
+    ##  [25] 0.51948052 0.49663058 0.62113730 0.27906977        NaN 0.20547945
+    ##  [31] 0.82943723 0.47332503 0.67813714 0.44227795        NaN        NaN
+    ##  [37] 0.68434477 0.80022597 0.29909274 0.09677419 0.66328009 0.09677419
+    ##  [43] 0.20547945 0.27906977 0.09677419 0.54545455 0.27906977 0.09677419
+    ##  [49] 0.80782384 0.27653121 0.27906977 0.09677419 0.57922814 0.29605336
+    ##  [55] 0.40000000 0.73593074 0.70613108 0.81600054 0.50802405 0.40000000
+    ##  [61] 0.82739873 0.40000000 0.27906977        NaN 0.77147360        NaN
+    ##  [67] 0.20547945 0.29605336 0.27906977 0.72929655 0.69815573 0.67035199
+    ##  [73] 0.20547945        NaN        NaN 0.49663058        NaN        NaN
+    ##  [79] 0.48600624 0.46190302 0.59533191        NaN 0.51028625 0.27906977
+    ##  [85] 0.74458874 0.29909274 0.78792389 0.27906977 0.09677419 0.70129870
+    ##  [91] 0.09677419 0.78111153        NaN 0.54545455 0.70681818 0.43562336
+    ##  [97] 0.09677419 0.70915342 0.30136547 0.75654888        NaN 0.45537782
+    ## [103] 0.20547945 0.81354052 0.73116279        NaN 0.69963757
+
+``` r
 range_clique <- netrange(faux.desert.high, 
                faux.desert.high %v% "cliques", 
                directed = T)
+range_clique
 ```
+
+    ##   [1] 0.67316017        NaN 0.72684659 0.30000000 0.00000000 0.47619048
+    ##   [7] 0.38260789 0.53869048        NaN 0.45454545        NaN 0.40969739
+    ##  [13] 0.77601867 0.23809524 0.09677419        NaN 0.45454545        NaN
+    ##  [19] 0.32211982 0.47619048 0.61415344        NaN        NaN 0.09677419
+    ##  [25] 0.30000000 0.50409526 0.61421131 0.23809524        NaN 0.51228322
+    ##  [31] 0.70658971 0.47904762 0.57730264 0.47154393        NaN        NaN
+    ##  [37] 0.75463496 0.71039631 0.30028322 0.09677419 0.66426847 0.09677419
+    ##  [43] 0.21875000 0.23809524 0.09677419 0.30000000 0.23809524 0.09677419
+    ##  [49] 0.57500000 0.27769813 0.23809524 0.09677419 0.56101724 0.29626071
+    ##  [55] 0.45454545 0.45454545 0.67316017 0.79653680 0.71331845 0.47619048
+    ##  [61] 0.69854227 0.47619048 0.23809524        NaN 0.45553977        NaN
+    ##  [67] 0.21875000 0.29626071 0.23809524 0.54749757 0.80341510 0.56371793
+    ##  [73] 0.21875000        NaN        NaN 0.50409526        NaN        NaN
+    ##  [79] 0.23809524 0.45784457 0.47799202        NaN 0.54036525 0.23809524
+    ##  [85] 0.45454545 0.29753024 0.76282251 0.23809524 0.09677419 0.55863095
+    ##  [91] 0.09677419 0.68253968        NaN 0.21875000 0.55742187 0.21875000
+    ##  [97] 0.09677419 0.58104349 0.29753024 0.73436748        NaN 0.46387097
+    ## [103] 0.21875000 0.61136419 0.76282251        NaN 0.73303571
 
 ``` r
 library(dplyr)
@@ -318,22 +380,117 @@ desert_attr <- data.frame(node = faux.desert.high %v% "vertex.names",
                           range_grade = range_grade,
                           range_clique = range_clique,
                           stringsAsFactors = F)
-desert_attr %>% 
-  group_by(grade) %>% 
-  summarize(mean_grade_range = mean(range_grade, na.rm = T),
-            mean_clique_range = mean(range_clique, na.rm = T)
-  )
+desert_attr 
 ```
 
-    ## # A tibble: 6 x 3
-    ##   grade mean_grade_range mean_clique_range
-    ##   <int>            <dbl>             <dbl>
-    ## 1     7        0.2385250         0.2417038
-    ## 2     8        0.4469988         0.5000626
-    ## 3     9        0.4970653         0.4214951
-    ## 4    10        0.7057428         0.6085711
-    ## 5    11        0.6204028         0.4475440
-    ## 6    12        0.4821193         0.4102803
+    ##     node grade clique range_grade range_clique
+    ## 1      1    10      5  0.68464965   0.67316017
+    ## 2      2    12      1         NaN          NaN
+    ## 3      3     8      1  0.52467310   0.72684659
+    ## 4      4    12      6  0.72987013   0.30000000
+    ## 5      5    12      7  0.40000000   0.00000000
+    ## 6      6    12      1  0.40000000   0.47619048
+    ## 7      7     7      2  0.38283685   0.38260789
+    ## 8      8    11      4  0.77653277   0.53869048
+    ## 9      9    10      6         NaN          NaN
+    ## 10    10    12      5  0.51948052   0.45454545
+    ## 11    11     9      4         NaN          NaN
+    ## 12    12     7      2  0.39015466   0.40969739
+    ## 13    13    10      6  0.84586373   0.77601867
+    ## 14    14     9      4  0.27906977   0.23809524
+    ## 15    15     7      2  0.09677419   0.09677419
+    ## 16    16    10      5         NaN          NaN
+    ## 17    17    12      5  0.54545455   0.45454545
+    ## 18    18    11      1         NaN          NaN
+    ## 19    19     7      2  0.32416063   0.32211982
+    ## 20    20    12      1  0.40000000   0.47619048
+    ## 21    21     9      4  0.63441864   0.61415344
+    ## 22    22    11      3         NaN          NaN
+    ## 23    23    12      8         NaN          NaN
+    ## 24    24     7      2  0.09677419   0.09677419
+    ## 25    25    10      6  0.51948052   0.30000000
+    ## 26    26     8      3  0.49663058   0.50409526
+    ## 27    27    10      4  0.62113730   0.61421131
+    ## 28    28    11      4  0.27906977   0.23809524
+    ## 29    29    12      9         NaN          NaN
+    ## 30    30     8      3  0.20547945   0.51228322
+    ## 31    31    12      1  0.82943723   0.70658971
+    ## 32    32     8      3  0.47332503   0.47904762
+    ## 33    33     9      4  0.67813714   0.57730264
+    ## 34    34     7      2  0.44227795   0.47154393
+    ## 35    35    10     10         NaN          NaN
+    ## 36    36    12      4         NaN          NaN
+    ## 37    37     8      1  0.68434477   0.75463496
+    ## 38    38    10      6  0.80022597   0.71039631
+    ## 39    39     7      2  0.29909274   0.30028322
+    ## 40    40     7      2  0.09677419   0.09677419
+    ## 41    41     8      3  0.66328009   0.66426847
+    ## 42    42     7      2  0.09677419   0.09677419
+    ## 43    43     8      3  0.20547945   0.21875000
+    ## 44    44     9      4  0.27906977   0.23809524
+    ## 45    45     7      2  0.09677419   0.09677419
+    ## 46    46    11      6  0.54545455   0.30000000
+    ## 47    47    12      4  0.27906977   0.23809524
+    ## 48    48     7      2  0.09677419   0.09677419
+    ## 49    49    11      5  0.80782384   0.57500000
+    ## 50    50     7      2  0.27653121   0.27769813
+    ## 51    51     9      4  0.27906977   0.23809524
+    ## 52    52     7      2  0.09677419   0.09677419
+    ## 53    53     9      4  0.57922814   0.56101724
+    ## 54    54     7      2  0.29605336   0.29626071
+    ## 55    55    12      5  0.40000000   0.45454545
+    ## 56    56    11      5  0.73593074   0.45454545
+    ## 57    57    10      5  0.70613108   0.67316017
+    ## 58    58    10      4  0.81600054   0.79653680
+    ## 59    59     8      3  0.50802405   0.71331845
+    ## 60    60    12      1  0.40000000   0.47619048
+    ## 61    61    10      6  0.82739873   0.69854227
+    ## 62    62    12      1  0.40000000   0.47619048
+    ## 63    63     9      4  0.27906977   0.23809524
+    ## 64    65    10      6         NaN          NaN
+    ## 65    66    10      6  0.77147360   0.45553977
+    ## 66    67    10     11         NaN          NaN
+    ## 67    69     8      3  0.20547945   0.21875000
+    ## 68    70     7      2  0.29605336   0.29626071
+    ## 69    71    10      4  0.27906977   0.23809524
+    ## 70    72     9      4  0.72929655   0.54749757
+    ## 71    73     8      3  0.69815573   0.80341510
+    ## 72    74     9      4  0.67035199   0.56371793
+    ## 73    75    11      6  0.20547945   0.21875000
+    ## 74    76    10      5         NaN          NaN
+    ## 75    77    12      6         NaN          NaN
+    ## 76    79     8      3  0.49663058   0.50409526
+    ## 77    80    12     12         NaN          NaN
+    ## 78    81    11     13         NaN          NaN
+    ## 79    82     9      4  0.48600624   0.23809524
+    ## 80    83     7      2  0.46190302   0.45784457
+    ## 81    84     9      4  0.59533191   0.47799202
+    ## 82    85    12     14         NaN          NaN
+    ## 83    86     7      2  0.51028625   0.54036525
+    ## 84    87     9      4  0.27906977   0.23809524
+    ## 85    88    10      5  0.74458874   0.45454545
+    ## 86    89     7      2  0.29909274   0.29753024
+    ## 87    90    11      5  0.78792389   0.76282251
+    ## 88    91     9      4  0.27906977   0.23809524
+    ## 89    92     7      2  0.09677419   0.09677419
+    ## 90    93    10      6  0.70129870   0.55863095
+    ## 91    94     7      2  0.09677419   0.09677419
+    ## 92    95    10      1  0.78111153   0.68253968
+    ## 93    96    11      1         NaN          NaN
+    ## 94    97    11      3  0.54545455   0.21875000
+    ## 95    98    11      6  0.70681818   0.55742187
+    ## 96    99     8      3  0.43562336   0.21875000
+    ## 97   101     7      2  0.09677419   0.09677419
+    ## 98   102     9      4  0.70915342   0.58104349
+    ## 99   103     7      2  0.30136547   0.29753024
+    ## 100  104    10      4  0.75654888   0.73436748
+    ## 101  105     8      6         NaN          NaN
+    ## 102  106     8      3  0.45537782   0.46387097
+    ## 103  107     8      3  0.20547945   0.21875000
+    ## 104  108    11      6  0.81354052   0.61136419
+    ## 105  109    10      5  0.73116279   0.76282251
+    ## 106  110    12      7         NaN          NaN
+    ## 107  111     9      4  0.69963757   0.73303571
 
 Now for the most critical question: *who's got the best gossip?*
 
@@ -391,115 +548,129 @@ Again, sophomores and juniors are represented in the top six max range scores. B
 ``` r
 desert_attr %>%  
   group_by(grade) %>% 
-  summarize(mean_range_grade = mean(range_grade, na.rm = T),
-            sd_range_grade = sd(range_grade, na.rm = T))
+  summarize(mean_range_clique = mean(range_clique, na.rm = T),
+            sd_range_clique = sd(range_clique, na.rm = T))
 ```
 
     ## # A tibble: 6 x 3
-    ##   grade mean_range_grade sd_range_grade
-    ##   <int>            <dbl>          <dbl>
-    ## 1     7        0.2385250      0.1442056
-    ## 2     8        0.4469988      0.1786904
-    ## 3     9        0.4970653      0.1933338
-    ## 4    10        0.7057428      0.1450669
-    ## 5    11        0.6204028      0.2225077
-    ## 6    12        0.4821193      0.1640451
+    ##   grade mean_range_clique sd_range_clique
+    ##   <int>             <dbl>           <dbl>
+    ## 1     7         0.2417038       0.1496414
+    ## 2     8         0.5000626       0.2146881
+    ## 3     9         0.4214951       0.1848005
+    ## 4    10         0.6085711       0.1726687
+    ## 5    11         0.4475440       0.1924243
+    ## 6    12         0.4102803       0.1792187
 
 ``` r
 desert_attr %>%  
   filter(clique < 7) %>% 
   group_by(clique) %>% 
-  summarize(mean_range_grade = mean(range_grade, na.rm = T),
-            sd_range_grade = sd(range_grade, na.rm = T),
+  summarize(mean_range_clique = mean(range_clique, na.rm = T),
+            sd_range_clique = sd(range_clique, na.rm = T),
             clique_size = n())
 ```
 
     ## # A tibble: 6 x 4
-    ##   clique mean_range_grade sd_range_grade clique_size
-    ##    <dbl>            <dbl>          <dbl>       <int>
-    ## 1      1        0.5524458      0.1852179          11
-    ## 2      2        0.2385250      0.1442056          22
-    ## 3      3        0.4303400      0.1729193          14
-    ## 4      4        0.5119731      0.2097067          24
-    ## 5      5        0.6663146      0.1329179          12
-    ## 6      6        0.6788095      0.1904140          15
+    ##   clique mean_range_clique sd_range_clique clique_size
+    ##    <dbl>             <dbl>           <dbl>       <int>
+    ## 1      1         0.5969216       0.1306115          11
+    ## 2      2         0.2417038       0.1496414          22
+    ## 3      3         0.4413957       0.2076331          14
+    ## 4      4         0.4418417       0.2022888          24
+    ## 5      5         0.5719693       0.1342800          12
+    ## 6      6         0.4987876       0.1949541          15
 
 Inspecting means by clique (excluding cliques with two or fewer members), there isn't as wide a range of mean range scores, with one clique being notable more insular than others. Clique 2, unsurprisingly, consists entirely of seventh graders, the youngest students in the school. Gotta stick together to survive.
 
-Last, let's take a closer look at the rulers of Desert High's gossip mill, our friends \#13 and \#73. \#13 had the largest formal network range score in the network. This student had friendship ties spread across different grades, which we can see by look at \#13's ego network.
+Last, let's take a closer look at the rulers of Desert High's gossip mill, our friends \#13 and \#73. And to make this more palatable, let's give them names! Now, the `faux.desert.high` network dataset does have sex as an attribute; however, the documentation does not tell us what the sex codes indicate. So we don't know if `1 = male` or if `2 = male`. Alas, we'll just make up some names. Let's call \#13 "Monique" and \#73 "Sammy". Monique had the largest formal network range score in the network. This student had friendship ties spread across different grades, which we can see by look at Monique's ego network.
 
 ``` r
 ego13 <- ego.extract(faux.desert.high, 13, neighborhood = "combined")
-gplot(ego13$`13`, 
-      vertex.col = desert_attr[match(colnames(ego13$`13`), 
-                                     desert_attr$node), 
-                               "color"],
-      edge.col = "grey40")
+ego13 <- as.network(ego13$`13`, directed = T)
+ego13 %v% "grade" <- desert_attr[match(network.vertex.names(ego13), desert_attr$node),"grade"]
+ggnet2(ego13,
+      color = "grade",
+      size = 4, palette = "Set1", arrow.gap = 0.02,
+      arrow.size = 5, edge.alpha = 0.5,
+      edge.color = "grey40",
+      color.legend = "Grade") +
+  theme(legend.position = "bottom")
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/13%20ego%20network-1.png)
 
-(Note: I use the `gplot` function here rather than simply `plot` because the `ego.extract` function produces a matrix rather than a `network` object. Sending a matrix to `plot` does not produce a network graph, but `gplot` will convert the matrix to a network for us. Happy days.)
-
-On the other hand, \#73 has her or his finger on the pulse of the informal social order in the school. S/he (documentation does not provide a codebook for sex!) spreads her social ties across several social cliques.
+On the other hand, Sammy has her or his finger on the pulse of the informal social order in the school. S/he (documentation does not provide a codebook for sex!) crosses many social barriers by forging friendships with people in several different cliques.
 
 ``` r
 ego73 <- ego.extract(faux.desert.high, 71, neighborhood = "combined")
-gplot(ego73$`73`, 
-      vertex.col = desert_attr[match(colnames(ego73$`73`), 
-                                     desert_attr$node), 
-                               "clique"],
-      edge.col = "grey40")
+ego73 <- as.network(ego73$`73`, directed = T)
+ego73 %v% "clique" <- desert_attr[match(network.vertex.names(ego73), desert_attr$node),"clique"]
+ggnet2(ego73,
+      color = "clique",
+      size = 4, palette = "Set1", arrow.gap = 0.02,
+      arrow.size = 5, edge.alpha = 0.5,
+      edge.color = "grey40",
+      color.legend = "Clique") +
+  theme(legend.position = "bottom")
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/73%20ego%20network-1.png)
 
-Now, thinking about the larger social order of the high school, where are \#13 and \#73 located? Are they particularly popular? Are they brokers, mediating between friends?
+Now, thinking about the larger social order of the high school, where are Monique and Sammy located? Are they particularly popular? Are they brokers, mediating between friends?
 
 ``` r
 desert_attr <- desert_attr %>% 
-  mutate(colors = c(rep("white",12), 
+  mutate(colors = c(rep("grey60",12), 
                     "red", 
-                    rep("white",70-13),
+                    rep("grey60",70-13),
                     "blue",
-                    rep("white",nrow(desert_attr)-71)))
-  
-plot(faux.desert.high,
-     vertex.col = desert_attr$colors,
-     vertex.cex = c(rep(1,12), 
+                    rep("grey60",nrow(desert_attr)-71)))
+
+ggnet2(faux.desert.high,
+       color = desert_attr$colors,
+       size = c(rep(1,12), 
                     2, 
                     rep(1,70-13),
                     2,
                     rep(1,nrow(desert_attr)-71)),
-     edge.col = "grey40",
-     coord = l
-)
+       arrow.gap = 0.02,
+       arrow.size = 5, edge.alpha = 0.5,
+       mode = l) +
+  guides(color = FALSE, size = FALSE)
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/finding%20nodes%20in%20the%20network-1.png)
 
-``` r
-par(mfrow=c(1,2), margin(0, 0, 0, 0))
-plot(faux.desert.high,
-     vertex.col = desert_attr$colors,
-     vertex.cex = degree(faux.desert.high, cmode="indegree", rescale = T)*100,
-     edge.col = "gray40",
-     coord = l,
-     main = "Degree centrality"
-)
+Our friend Monique is represented by the red node and Sammy by the blue. As we can see, they are pretty centrally located in the social order of the high schools. If we take a look at centrality, we can see that they are not the most popular students, but they are popular. Monique, in particular, is quite popular and mediates between lots of people in the school. That means that Monique is friends with lots of people who are not friends with each other.
 
-plot(faux.desert.high,
-     vertex.col = desert_attr$colors,
-     vertex.cex = betweenness(faux.desert.high, rescale=T)*70,
-     edge.col = "gray40",
-     coord = l,
-     main = "Betweeness centrality"
-)
+``` r
+degcent <- ggnet2(faux.desert.high,
+       color = desert_attr$colors,
+       size = "indegree",
+       max_size = 5,
+       arrow.gap = 0.02,
+       arrow.size = 5, edge.alpha = 0.5,
+       mode = l) +
+  guides(color = FALSE, size = FALSE) +
+  ggtitle("Degree centrality")
+
+btwcent <- ggnet2(faux.desert.high,
+       color = desert_attr$colors,
+       size = betweenness(faux.desert.high),
+       max_size = 5,
+       arrow.gap = 0.02,
+       arrow.size = 5, edge.alpha = 0.5,
+       mode = l) +
+  guides(color = FALSE, size = FALSE) +
+  ggtitle("Betweenness centrality")
+
+gridExtra::grid.arrange(degcent, btwcent, ncol=2)
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/visualizing%20centrality-1.png)
 
-Visually,
+Let's see where they fall in the distribution of degree centrality and betweenness scores in the network.
 
 ``` r
 library(ggplot2)
@@ -522,3 +693,18 @@ gridExtra::grid.arrange(pdeg, pbtw, ncol=2)
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/centrality-1.png)
+
+We can see that Monique is indeed at the upper end of these distributions--to be precise, 0.95 for degree and 0.99 for betweenness! Perhaps it is not surprising that Sammy is toward the middle of the degree distribution (again, to be precise 0.41), since she is only a freshman. Notable, she is in the upper quartile for betweenness (0.79), so, like Monique, she is positioning herself as a mediator between others--friends with lots of people who are not friends themselves.
+
+What does all this mean?
+------------------------
+
+The network range measure captures the diversity of an actor's ego network. This allows her to access a wide diversity of social information. Access to diverse information is important in many different social settings--whether we are talking about business, education, or everyday social life. One of the most famous findings in all of sociology is Granovetter's (1973) "strength of weak ties" finding. Using network analysis, he found that job seekers are more likely to learn about jobs from their weak ties rather than their strong ties. The intuition here is not hard: since you interact with your close friends regularly, they are not a source of novel or unique information in the same way that your acquaintances are. Being plugged in to different social subgroups is similar. You can access unique information that others cannot. Returning to the university example, a professor with ties to several departments can draw on the expertise of faculty in different disciplines. This can help one to develop innovative ideas. Network range is one way to capture the diversity of information that an individual has access to through their social connections.
+
+### References
+
+Burt, Ronald S. 1983. "Range." Pp. 176-94 in Applied Network Analysis: A Methodological Introduction, by Ronald S. Burt, Michael J. Minor and Associates. Beverly Hills, CA: Sage.
+
+Granovetter, M. S. 1973. The Strength of Weak Ties. American Journal of Sociology, 78(6), 1360–1380.
+
+Reagans, R., & McEvily, B. (2003). Network Structure and Knowledge Transfer: The Effects of Cohesion and Range. Administrative Science Quarterly, 48(2), 240.
