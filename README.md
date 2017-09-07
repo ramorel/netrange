@@ -5,7 +5,7 @@ Richard Paquin Morel
 Some preliminaries
 ------------------
 
-Network range is a measure that I really like. It captures the diversity of an actor's ego network in a nauanced way. But none of the major R network analysis packages includes a node-level measure of range. While range is sometimes used in empirical network studies, it is not nearly as popular as other measures, like centrality or structural holes. Part of the issue is that there are many ways to measure network range. When I refer to network range, I mean Burt's (1983) composite measure of network diversity. The most famous use of this measure is Reagans and McEvily's (2003) study on knowledge transfer and innovation.
+Network range is a measure that I really like. It captures the diversity of an actor's ego network in a nuanced way. But none of the major R network analysis packages includes a node-level measure of range. While range is sometimes used in empirical network studies, it is not nearly as popular as other measures, like centrality or structural holes. Part of the issue is that there are many ways to measure network range. When I refer to network range, I mean Burt's (1983) composite measure of network diversity. The most famous use of this measure is Reagans and McEvily's (2003) study on knowledge transfer and innovation.
 
 The purpose of this vignette is to describe the measure and illustrate it use.
 
@@ -14,7 +14,7 @@ Network Range
 
 This function calculates **network range**, as described by Burt (1981) and implemented by Reagans and McEvil (2003). **Network range** is a node-level measure of the diversity of an ego's network connections. It is a function of two features of an ego's network: first, how they distribute their connections across a range of subgroups; and second, how strongly connected those subgroups are. The main idea here is that a person has a wide ranging network if they distribute their connections widely across various subgroups *and* those subgroups are more loosely connected. It is helpful is this context to think about these subgroups as constituting distinct knowledge pools--for example, departments in a university.
 
-While the first point is pretty intuitive--you can access more diverise information if you are connected to more knowledge pools--the second is a bit less so. The idea is closely related to Ronald Burt's other work. Burt has argued that dense networks result in redundant information. If people within a group have strongly connected to one another, that means they talk to each other a lot. Think of a friendship network. If something interesting happened to one of my close friends, I'm likely to hear the story from them. But I'm also likely to hear the story from another friend who is close to both of us. The information that my friend and I have access to overlap significantly compared to two people who do not know each other well. So, Burt argues, in less dense networks, a greater proportion of the information a person is likely to encounter is novel. There is less redundant information.
+While the first point is pretty intuitive--you can access more diverse information if you are connected to more knowledge pools--the second is a bit less so. The idea is closely related to Ronald Burt's other work. Burt has argued that dense networks result in redundant information. If people within a group have strongly connected to one another, that means they talk to each other a lot. Think of a friendship network. If something interesting happened to one of my close friends, I'm likely to hear the story from them. But I'm also likely to hear the story from another friend who is close to both of us. The information that my friend and I have access to overlap significantly compared to two people who do not know each other well. So, Burt argues, in less dense networks, a greater proportion of the information a person is likely to encounter is novel. There is less redundant information.
 
 So back to range. If I am connected to people in several different departments, I have a very diverse knowledge pool I can draw from. Those knowledge pools are enhanced when they are more loosely connected, since more of the information that I can access is novel.
 
@@ -34,7 +34,7 @@ So now we have the two parts we need to calculate the network diversity of each 
 
 ![](network_range_vignette_files/equation_3.png)
 
-To find the diveristy score of person *i*, we sum the product of *p*<sub>*k*</sub>, the cohseiveness of group *k* and the squared of *p*<sub>*i*</sub>*k*--that is, *i*'s stregth of connections in group *k*. This is product is summed over *k*. Subtracting the summation from one makes the score more sensible, in that higher score indicate greater diversity.
+To find the diversity score of person *i*, we sum the product of *p*<sub>*k*</sub>, the cohesiveness of group *k* and the squared of *p*<sub>*i*</sub>*k*--that is, *i*'s strength of connections in group *k*. This is product is summed over *k*. Subtracting the summation from one makes the score more sensible, in that higher score indicate greater diversity.
 
 Now that we have all the pieces, we can make this a bit more intuitive. A person's diversity score increases under two conditions: first, to the extent that the spread their connections across the groups in the network; and second, to the extent that the groups that are connected to are themselves more loosely connected internally.
 
@@ -168,12 +168,12 @@ netrange <- function(net, attr, directed = TRUE){
 An example: Who's got the best gossip?
 --------------------------------------
 
-To illustrate this, I will use an example dataset from Hancock et al.'s (2003): A mock social network in a fake high school (Magnolia High). This is a simulated network based on exponential random graph model fits of actual high school networks from the AddHealth data set (Resnick et al, 1997). Now, normally you might think that range is most useful for organizations involved in complex work that draws on multiple knowledge domains (as is the case in Reagans & McEvily). But it may be relevant to the social lives of teenagers as well. Hear me out on this one. If a junior in Magnolia High has friends in each of the grades and several cliques, she potentially has strong access to that most valuable of high school resources: gossip. Knowing who is doing what in each grade and each clique arms her with powerful information to control the social life of the high school!
+To illustrate this, I will use an example dataset from Hancock et al.'s (2003): A mock social network in a fake high school (Desert High). This is a simulated network based on exponential random graph model fits of actual high school networks from the AddHealth data set (Resnick et al, 1997). Now, normally you might think that range is most useful for organizations involved in complex work that draws on multiple knowledge domains (as is the case in Reagans & McEvily). But it may be relevant to the social lives of teenagers as well. Hear me out on this one. If a junior in Magnolia High has friends in each of the grades and several cliques, she potentially has strong access to that most valuable of high school resources: gossip. Knowing who is doing what in each grade and each clique arms her with powerful information to control the social life of the high school!
 
-Let's take a look at Magnolia High.
+Let's take a look at Desert High.
 
 ``` r
-library(statnet) #The statnet suite of packages contains the sna, network, and ergm (home of the Magnolia High network) packages.
+library(statnet) #The statnet suite of packages contains the sna, network, and ergm (home of the Desert High network) packages.
 data(faux.desert.high)
 summary(faux.desert.high, print.adj = F, mixingmatrices = T)
 ```
@@ -289,7 +289,7 @@ mixingmatrix(faux.desert.high, "cliques")
 
 The mixing matrix shows us that there are 14 distinct subgroups, but 7 of them are just isolate nodes--those poor students with no friends and one consist of just one friendship tie. Hey, at least they have each other. Of the remaining 6, we can see by looking down the diagonal that most ties are within clique, but not exclusively. Looks like our algorithm did a nice job.
 
-`igraph` has a nice ploting function that goes along with its community detection functions. For this, I'll go ahead and load `igraph`.
+`igraph` has a nice plotting function that goes along with its community detection functions. For this, I'll go ahead and load `igraph`.
 
 ``` r
 library(igraph)
@@ -306,7 +306,7 @@ plot(fg, g_desert,
 detach("package:igraph", unload=TRUE)
 ```
 
-We can see distinct clustering by grade-level, but also a lot of overlap between thr groups. So these cliques are distinct, but not the dominant mode of social organziation in the school.
+We can see distinct clustering by grade-level, but also a lot of overlap between the groups. So these cliques are distinct, but not the dominant mode of social organization in the school.
 
 Network Range of High School Students
 -------------------------------------
@@ -507,7 +507,7 @@ head(desert_attr[order(desert_attr$range_grade, decreasing = T), c("node", "grad
     ## 104  108    11   0.8135405
     ## 49    49    11   0.8078238
 
-For diveristy across grade levels, student 13 has the maximum range score, with several others close behind. These students spread their social connections across different grades, and so are privy to all the rumors and machinations specific to each grade. It is interesting that 5 of the students with the top 6 score in the middle secondary grades--sophomores and juniors. Conceiveably, students in these grades may benefit the most from access to diverse social information. They are right in the heart of high school, unlike the one-foot-out-the-door seniors or the deer-in-the-headlights freshman.
+For diversity across grade levels, student 13 has the maximum range score, with several others close behind. These students spread their social connections across different grades, and so are privy to all the rumors and machinations specific to each grade. It is interesting that 5 of the students with the top 6 score in the middle secondary grades--sophomores and juniors. Conceivably, students in these grades may benefit the most from access to diverse social information. They are right in the heart of high school, unlike the one-foot-out-the-door seniors or the deer-in-the-headlights freshman.
 
 I'm curious now about the means and standard deviations of range scores by grade-level. The `dplyr` package is handy for quickly summarizing data. Grouping the data with `group_by` and then using `summarize` we can quickly see these summary stats by group--but remember to remove *NA* values when finding `mean` and `sd`!
 
@@ -528,7 +528,7 @@ desert_attr %>%
     ## 5    11        0.6204028      0.2225077
     ## 6    12        0.4821193      0.1640451
 
-As we suspected, sophmores and junior have the greatest mean diversity scores in the school.
+As we suspected, sophomores and junior have the greatest mean diversity scores in the school.
 
 So sophomores and juniors are actively making friendship ties across all grade level, giving them access to all the best grade-level gossip. But are they also plugged into the dominant cliques across the school?
 
