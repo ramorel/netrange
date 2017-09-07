@@ -13,18 +13,19 @@ So back to range. If I am connected to people in several different departments, 
 
 To measure an actor's network range, it is necessary to calculate the diversity of their ties and the cohesiveness of the knowledge pools they are connected to. We measure the first but taking the sum of the ratio of the sum of the strength of an actor's connection to the distinct subgroups in the network to the sum of the strength of their overall connections (all equations based on Reagans & McEvily, 2003):
 
-$$ p\_{ik} = \\sum\_j^{N\_k}z\_{ij} / \\sum\_q^N z\_{iq}$$
+![](network_range_vignette_files/equation_1.png)
+
  where *i* represents the focal node, *j* represents their connections within group *k*, and *q* represents any of their connections. *N*<sub>*k*</sub> is the number of connections *i* has in group *k*, while *N* is the total number of connections person *i* has. The terms *z*<sub>*i**j*</sub> and *z*<sub>*i**q*</sub> captures the strength of the tie between person *i* and person *j* and *q*. To put this plainly, we are summing person *i*'s ties within each distinct group and overall and then finding what proportion of the overall ties is represented by that group. So say that are 6 distinct groups in the network, each *i* will have 6 scores after this calculation.
 
 To calculate the cohesiveness of each group:
 
-$$p\_k = \\sum\_j^{M\_k} x\_{ij} / \\sum\_q^{S\_k} x\_{iq} $$
+![](network_range_vignette_files/equation_2.png)
 
 where *M*<sub>*k*</sub> is the number of nodes within group *k* and *x*<sub>*i**j*</sub> is the strength of connections between *i* and another person in group *k*. *S*<sub>*k*</sub> is the total number of connections of nodes in group *k* and *x*<sub>*i**q*</sub> is the strength of connections between person *i* and any other connection. To put plainly, this finds how strong connections are in group *k* relative to the overall connections of people in group *k*.
 
 So now we have the two parts we need to calculate the network diversity of each node in the network:
 
-$$ d\_i =  1 - \\sum\_k^{N\_k} p\_k p\_{ik}^2 $$
+![](network_range_vignette_files/equation_3.png)
 
 To find the diveristy score of person *i*, we sum the product of *p*<sub>*k*</sub>, the cohseiveness of group *k* and the squared of *p*<sub>*i*</sub>*k*--that is, *i*'s stregth of connections in group *k*. This is product is summed over *k*. Subtracting the summation from one makes the score more sensible, in that higher score indicate greater diversity.
 
