@@ -493,8 +493,7 @@ desert_attr
     ## 107  111     9      4  0.69963757   0.73303571
 
 
-Now for the most critical question: *who's got the best gossip?*
-------------------
+##Now for the most critical question: *who's got the best gossip?*
 
 ``` r
 head(desert_attr[order(desert_attr$range_grade, decreasing = T), c("node", "grade", "range_grade")])
