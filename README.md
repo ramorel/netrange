@@ -228,15 +228,15 @@ summary(faux.desert.high, print.adj = F, mixingmatrices = T)
 Let's plot it, coloring the nodes by grade level.
 
 ``` r
-library(GGally)
 library(ggplot2)
-ggnet2(faux.desert.high, color = "grade",
-       size = 4, palette = "Set1", arrow.gap = 0.02,
-       arrow.size = 5, edge.alpha = 0.5,
-       mode = l,
-       edge.color = c("color", "grey50"),
-       color.legend = "Grade") +
-  theme(legend.position = "bottom")
+library(ggraph)
+ggraph(faux.desert.high, layout = "nicely") +
+  geom_edge_link(aes(alpha = ..index..), show.legend = FALSE) +
+  geom_node_point(aes(color = factor(grade))) +
+  scale_color_viridis_d(name = "Grade") +
+  labs(title = "Friendship network at Faux Desert High School") +
+  theme_graph() +
+  theme(plot.title = element_text(family = "Lato", size = 12))
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/desert%20high%20plot-1.png)
@@ -590,13 +590,13 @@ Last, let's take a closer look at the rulers of Desert High's gossip mill, our f
 ego13 <- ego.extract(faux.desert.high, 13, neighborhood = "combined")
 ego13 <- as.network(ego13$`13`, directed = T)
 ego13 %v% "grade" <- desert_attr[match(network.vertex.names(ego13), desert_attr$node),"grade"]
-ggnet2(ego13,
-      color = "grade",
-      size = 4, palette = "Set1", arrow.gap = 0.02,
-      arrow.size = 5, edge.alpha = 0.5,
-      edge.color = "grey40",
-      color.legend = "Grade") +
-  theme(legend.position = "bottom")
+ggraph(ego13) +
+  geom_edge_link(alpha = 0.5) +
+  geom_node_point(aes(color = factor(grade)), size = 4) +
+  scale_color_viridis_d(name = "Grade") +
+  labs(title = "Ego network for Monique") +
+  theme_graph() +
+  theme(plot.title = element_text(family = "Minion Pro", size = 12))
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/13%20ego%20network-1.png)
@@ -607,13 +607,13 @@ On the other hand, Sammy has her or his finger on the pulse of the informal soci
 ego73 <- ego.extract(faux.desert.high, 71, neighborhood = "combined")
 ego73 <- as.network(ego73$`73`, directed = T)
 ego73 %v% "clique" <- desert_attr[match(network.vertex.names(ego73), desert_attr$node),"clique"]
-ggnet2(ego73,
-      color = "clique",
-      size = 4, palette = "Set1", arrow.gap = 0.02,
-      arrow.size = 5, edge.alpha = 0.5,
-      edge.color = "grey40",
-      color.legend = "Clique") +
-  theme(legend.position = "bottom")
+ggraph(ego73) +
+  geom_edge_link(alpha = 0.5) +
+  geom_node_point(aes(color = factor(clique)), size = 4) +
+  scale_color_viridis_d(name = "Clique") +
+  labs(title = "Ego network for Sammy") +
+  theme_graph() +
+  theme(plot.title = element_text(family = "Minion Pro", size = 12))
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/73%20ego%20network-1.png)
@@ -622,23 +622,20 @@ Now, thinking about the larger social order of the high school, where are Moniqu
 
 ``` r
 desert_attr <- desert_attr %>% 
-  mutate(colors = c(rep("grey60",12), 
-                    "red", 
-                    rep("grey60",70-13),
-                    "blue",
-                    rep("grey60",nrow(desert_attr)-71)))
+  mutate(colors = c(rep("grey50",12), 
+                    "tomato", 
+                    rep("grey50",70-13),
+                    "cornflowerblue",
+                    rep("grey50",nrow(desert_attr)-71)))
 
-ggnet2(faux.desert.high,
-       color = desert_attr$colors,
-       size = c(rep(1,12), 
-                    2, 
-                    rep(1,70-13),
-                    2,
-                    rep(1,nrow(desert_attr)-71)),
-       arrow.gap = 0.02,
-       arrow.size = 5, edge.alpha = 0.5,
-       mode = l) +
-  guides(color = FALSE, size = FALSE)
+faux.desert.high %v% "focal_colors" <- desert_attr$colors
+ggraph(faux.desert.high, layout = "nicely") +
+  geom_edge_link(aes(alpha = ..index..), show.legend = FALSE) +
+  geom_node_point(aes(color = focal_colors, size = focal_colors), alpha = 0.9) +
+  scale_color_manual(values = sort(unique(desert_attr$colors)),
+                     guide = FALSE) +
+  scale_size_manual(values = c(5, 2, 5), guide = FALSE) +
+  theme_graph()
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/finding%20nodes%20in%20the%20network-1.png)
@@ -646,27 +643,39 @@ ggnet2(faux.desert.high,
 Our friend Monique is represented by the red node and Sammy by the blue. As we can see, they are pretty centrally located in the social order of the high schools. If we take a look at centrality, we can see that they are not the most popular students, but they are popular. Monique, in particular, is quite popular and mediates between lots of people in the school. That means that Monique is friends with lots of people who are not friends with each other.
 
 ``` r
-degcent <- ggnet2(faux.desert.high,
-       color = desert_attr$colors,
-       size = "indegree",
-       max_size = 5,
-       arrow.gap = 0.02,
-       arrow.size = 5, edge.alpha = 0.5,
-       mode = l) +
-  guides(color = FALSE, size = FALSE) +
-  ggtitle("Degree centrality")
+library(patchwork)
+library(tidygraph)
+degcent <- faux.desert.high %>% 
+  as_tbl_graph() %>% 
+  activate("nodes") %>% 
+  mutate(indegree = centrality_degree(mode = "in")) %>% 
+  ggraph(layout = "nicely") +
+  geom_edge_link(aes(alpha = ..index..), show.legend = FALSE) +
+  geom_node_point(aes(color = focal_colors, size = indegree), alpha = 0.9, show.legend = FALSE) +
+  scale_color_manual(values = sort(unique(desert_attr$colors)),
+                     guide = FALSE) +
+  scale_size_continuous(range = c(0, 5)) +
+  labs(title = "Degree centrality") +
+  theme_graph() +
+  theme(plot.title = element_text(family = "Minion Pro", size = 12),
+        panel.background = element_rect(color = "black"))
+  
+btwcent <- faux.desert.high %>% 
+  as_tbl_graph() %>% 
+  activate("nodes") %>% 
+  mutate(btw = centrality_betweenness()) %>% 
+  ggraph(layout = "nicely") +
+  geom_edge_link(aes(alpha = ..index..), show.legend = FALSE) +
+  geom_node_point(aes(color = focal_colors, size = btw), alpha = 0.9, show.legend = FALSE) +
+  scale_color_manual(values = sort(unique(desert_attr$colors)),
+                     guide = FALSE) +
+  scale_size_continuous(range = c(0, 5)) +
+  labs(title = "Betweenness centrality") +
+  theme_graph() +
+  theme(plot.title = element_text(family = "Minion Pro", size = 12),
+        panel.background = element_rect(color = "black"))
 
-btwcent <- ggnet2(faux.desert.high,
-       color = desert_attr$colors,
-       size = betweenness(faux.desert.high),
-       max_size = 5,
-       arrow.gap = 0.02,
-       arrow.size = 5, edge.alpha = 0.5,
-       mode = l) +
-  guides(color = FALSE, size = FALSE) +
-  ggtitle("Betweenness centrality")
-
-gridExtra::grid.arrange(degcent, btwcent, ncol=2)
+degcent + btwcent
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/visualizing%20centrality-1.png)
@@ -679,18 +688,19 @@ desert_attr <- desert_attr %>%
   mutate(d_cent = degree(faux.desert.high, cmode="freeman"),
          b_cent = betweenness(faux.desert.high))
 
-par(mfrow=c(1,2))
 pdeg <- ggplot(desert_attr) +
-  geom_density(aes(x = d_cent)) +
+  geom_density(aes(x = d_cent), outline.type = "full") +
   geom_vline(xintercept = desert_attr[which(desert_attr$node == "13"), "d_cent"], linetype="dashed") +
-  geom_vline(xintercept = desert_attr[which(desert_attr$node == "73"), "d_cent"], linetype="dotted")
+  geom_vline(xintercept = desert_attr[which(desert_attr$node == "73"), "d_cent"], linetype="dotted") +
+  theme_minimal()
 
 pbtw <- ggplot(desert_attr) +
-  geom_density(aes(x = b_cent)) +
+  geom_density(aes(x = b_cent), outline.type = "full") +
   geom_vline(xintercept = desert_attr[which(desert_attr$node == "13"), "b_cent"], linetype="dashed") +
-  geom_vline(xintercept = desert_attr[which(desert_attr$node == "73"), "b_cent"], linetype="dotted")
+  geom_vline(xintercept = desert_attr[which(desert_attr$node == "73"), "b_cent"], linetype="dotted") +
+  theme_minimal()
 
-gridExtra::grid.arrange(pdeg, pbtw, ncol=2)
+pdeg + pbtw
 ```
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/centrality-1.png)
