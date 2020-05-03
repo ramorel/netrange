@@ -601,7 +601,7 @@ ggraph(ego13) +
 
 ![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/13%20ego%20network-1.png)
 
-On the other hand, Sammy has her or his finger on the pulse of the informal social order in the school. S/he (documentation does not provide a codebook for sex!) crosses many social barriers by forging friendships with people in several different cliques.
+On the other hand, Sammy has their finger on the pulse of the informal social order in the school. They cross many social barriers by forging friendships with people in several different cliques.
 
 ``` r
 ego73 <- ego.extract(faux.desert.high, 71, neighborhood = "combined")
