@@ -20,7 +20,7 @@ its use.
 ## Network Range
 
 This function calculates **network range**, as described by Burt (1983)
-and implemented by Reagans and McEvil (2003). **Network range** is a
+and implemented by Reagans and McEvily (2003). **Network range** is a
 node-level measure of the diversity of an actor’s network connections.
 It is a function of two features of an actor’s network: first, how they
 distribute their connections across a range of subgroups; and second,
