@@ -703,7 +703,7 @@ pbtw <- ggplot(desert_attr) +
 pdeg + pbtw
 ```
 
-![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/centrality-1.png)
+![](network_range_vignette_files/figure-markdown_github-ascii_identifiers/centrality.png)
 
 We can see that Monique is indeed at the upper end of these distributions--to be precise, 0.95 for degree and 0.99 for betweenness! Perhaps it is not surprising that Sammy is toward the middle of the degree distribution (again, to be precise 0.41), since she is only a freshman. Notable, she is in the upper quartile for betweenness (0.79), so, like Monique, she is positioning herself as a mediator between others--friends with lots of people who are not friends themselves.
 
